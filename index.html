@@ -399,6 +399,157 @@
             font-size: 0.8em;
             font-weight: bold;
         }
+
+        /* Shop Styles */
+        .shop-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: rgba(255,215,0,0.3);
+            border-color: #FFD700;
+            color: #FFD700;
+        }
+
+        .shop-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .shop-item {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .shop-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: #FFD700;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .shop-item.owned {
+            border-color: #4ECDC4;
+            background: rgba(78,205,196,0.1);
+        }
+
+        .shop-item.equipped {
+            border-color: #FFD700;
+            background: rgba(255,215,0,0.2);
+        }
+
+        .item-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .item-name {
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .item-stats {
+            color: #87CEEB;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+        }
+
+        .item-price {
+            color: #90EE90;
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .item-level {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255,215,0,0.3);
+            color: #FFD700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .buy-btn, .upgrade-btn, .equip-btn {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .buy-btn:hover, .upgrade-btn:hover, .equip-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(78,205,196,0.4);
+        }
+
+        .buy-btn:disabled, .upgrade-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+        }
+
+        .equip-btn {
+            background: linear-gradient(45deg, #45B7D1, #2196F3);
+        }
+
+        .gold-display {
+            background: rgba(255,215,0,0.2);
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -567,7 +718,7 @@
             <button class="main-btn" onclick="startNewBattle()">⚔️ Nova Batalha</button>
             <button class="main-btn" onclick="openInventory()">🎒 Inventário</button>
             <button class="main-btn" onclick="showStats()">📊 Estatísticas</button>
-            <button class="main-btn" onclick="visitShop()">🏪 Loja</button>
+            <button class="main-btn" onclick="showShop()">🏪 Loja</button>
             <button class="main-btn" onclick="showClassSelection()">🎯 Escolher Classe</button>
             <button class="main-btn" onclick="resetGame()">🔄 Resetar Jogo</button>
         </div>
@@ -575,6 +726,27 @@
         <div class="version">
             <p>Sistema A-Z MMORPG v1.0.0 | Desenvolvido com ❤️ para a comunidade</p>
             <p>Baseado no universo RPG Sistema A-Z | TypeScript • Node.js • PostgreSQL</p>
+        </div>
+    </div>
+
+    <!-- Modal de Loja -->
+    <div id="shopModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏪 Loja de Equipamentos</h2>
+                <button class="close-btn" onclick="closeShop()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shop-tabs">
+                    <button class="tab-btn active" onclick="showShopTab('weapons')">⚔️ Armas</button>
+                    <button class="tab-btn" onclick="showShopTab('armor')">🛡️ Armaduras</button>
+                    <button class="tab-btn" onclick="showShopTab('upgrades')">⭐ Upgrades</button>
+                </div>
+                
+                <div id="shopContent" class="shop-content">
+                    <!-- Conteúdo será preenchido dinamicamente -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -726,6 +898,211 @@
 
         function visitShop() {
             addLogEntry('🏪 Visitando loja...', 'system');
+        }
+
+        function showShop() {
+            document.getElementById('shopModal').style.display = 'block';
+            updateShopDisplay();
+            addLogEntry('🏪 Loja aberta!', 'system');
+        }
+
+        function closeShop() {
+            document.getElementById('shopModal').style.display = 'none';
+        }
+
+        function showShopTab(tab) {
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Adicionar classe active ao botão clicado
+            event.target.classList.add('active');
+            
+            // Atualizar conteúdo da loja
+            updateShopContent(tab);
+        }
+
+        function updateShopDisplay() {
+            const goldDisplay = document.querySelector('.gold-display');
+            if (!goldDisplay) {
+                const modalBody = document.querySelector('#shopModal .modal-body');
+                const goldDiv = document.createElement('div');
+                goldDiv.className = 'gold-display';
+                goldDiv.id = 'goldDisplay';
+                modalBody.insertBefore(goldDiv, modalBody.firstChild);
+            }
+            
+            const currentGold = parseInt(document.querySelectorAll('.stat-value')[14].textContent.replace(',', ''));
+            document.getElementById('goldDisplay').innerHTML = `💰 Gold: ${currentGold}`;
+            
+            updateShopContent('weapons');
+        }
+
+        function updateShopContent(tab) {
+            const shopContent = document.getElementById('shopContent');
+            
+            const shopData = {
+                weapons: [
+                    { id: 'sword_wood', name: 'Espada de Madeira', icon: '🗡️', stats: 'ATQ +2', price: 10, level: 1, type: 'weapon' },
+                    { id: 'sword_bronze', name: 'Espada de Bronze', icon: '⚔️', stats: 'ATQ +5', price: 50, level: 3, type: 'weapon' },
+                    { id: 'sword_iron', name: 'Espada de Ferro', icon: '🗡️', stats: 'ATQ +8', price: 150, level: 5, type: 'weapon' },
+                    { id: 'sword_steel', name: 'Espada de Aço', icon: '⚔️', stats: 'ATQ +12', price: 300, level: 8, type: 'weapon' },
+                    { id: 'bow_short', name: 'Arco Curto', icon: '🏹', stats: 'ATQ +4', price: 25, level: 2, type: 'weapon' },
+                    { id: 'bow_long', name: 'Arco Longo', icon: '🏹', stats: 'ATQ +7', price: 120, level: 6, type: 'weapon' },
+                    { id: 'staff_basic', name: 'Cajado Básico', icon: '🔮', stats: 'ATQ +5', price: 30, level: 2, type: 'weapon' },
+                    { id: 'staff_arcane', name: 'Cajado Arcano', icon: '🔮', stats: 'ATQ +10', price: 200, level: 7, type: 'weapon' },
+                    { id: 'dagger_basic', name: 'Adaga', icon: '🗡️', stats: 'ATQ +6', price: 40, level: 3, type: 'weapon' },
+                    { id: 'dagger_venom', name: 'Adaga Venenosa', icon: '🗡️', stats: 'ATQ +9', price: 180, level: 8, type: 'weapon' }
+                ],
+                armor: [
+                    { id: 'shield_leather', name: 'Escudo de Couro', icon: '🛡️', stats: 'DEF +1', price: 8, level: 1, type: 'armor' },
+                    { id: 'shield_wood', name: 'Escudo de Madeira', icon: '🛡️', stats: 'DEF +3', price: 30, level: 3, type: 'armor' },
+                    { id: 'shield_iron', name: 'Escudo de Ferro', icon: '🛡️', stats: 'DEF +6', price: 100, level: 5, type: 'armor' },
+                    { id: 'shield_steel', name: 'Escudo de Aço', icon: '🛡️', stats: 'DEF +10', price: 250, level: 8, type: 'armor' },
+                    { id: 'armor_leather', name: 'Armadura de Couro', icon: '🎽', stats: 'DEF +2', price: 20, level: 2, type: 'armor' },
+                    { id: 'armor_chain', name: 'Armadura de Malha', icon: '🎽', stats: 'DEF +5', price: 80, level: 4, type: 'armor' },
+                    { id: 'armor_plate', name: 'Armadura de Placas', icon: '🎽', stats: 'DEF +8', price: 180, level: 7, type: 'armor' },
+                    { id: 'robe_basic', name: 'Túnica Mágica', icon: '👘', stats: 'DEF +1', price: 15, level: 1, type: 'armor' },
+                    { id: 'robe_enchanted', name: 'Túnica Encantada', icon: '👘', stats: 'DEF +4', price: 90, level: 5, type: 'armor' },
+                    { id: 'robe_divine', name: 'Túnica Divina', icon: '👘', stats: 'DEF +7', price: 220, level: 8, type: 'armor' }
+                ],
+                upgrades: [
+                    { id: 'upgrade_plus1', name: 'Upgrade +1', icon: '⭐', stats: '+20% stats', price: 100, level: 1, type: 'upgrade' },
+                    { id: 'upgrade_plus2', name: 'Upgrade +2', icon: '⭐⭐', stats: '+40% stats', price: 300, level: 3, type: 'upgrade' },
+                    { id: 'upgrade_plus3', name: 'Upgrade +3', icon: '⭐⭐⭐', stats: '+60% stats', price: 800, level: 5, type: 'upgrade' },
+                    { id: 'upgrade_plus4', name: 'Upgrade +4', icon: '⭐⭐⭐⭐', stats: '+80% stats', price: 2000, level: 7, type: 'upgrade' },
+                    { id: 'upgrade_plus5', name: 'Upgrade +5', icon: '⭐⭐⭐⭐⭐', stats: '+100% stats', price: 5000, level: 10, type: 'upgrade' }
+                ]
+            };
+
+            const items = shopData[tab] || [];
+            const currentGold = parseInt(document.querySelectorAll('.stat-value')[14].textContent.replace(',', ''));
+            const playerLevel = parseInt(document.querySelectorAll('.stat-value')[1].textContent);
+            
+            let html = '<div class="shop-grid">';
+            
+            items.forEach(item => {
+                const isOwned = checkIfOwned(item.id);
+                const isEquipped = checkIfEquipped(item.id);
+                const canAfford = currentGold >= item.price;
+                const canUse = playerLevel >= item.level;
+                
+                let buttonHtml = '';
+                let itemClass = 'shop-item';
+                
+                if (isEquipped) {
+                    itemClass += ' equipped';
+                    buttonHtml = '<button class="equip-btn" disabled>Equipado</button>';
+                } else if (isOwned) {
+                    itemClass += ' owned';
+                    buttonHtml = `<button class="equip-btn" onclick="equipItem('${item.id}')">Equipar</button>`;
+                } else {
+                    buttonHtml = `<button class="buy-btn" onclick="buyItem('${item.id}', ${item.price})" ${!canAfford || !canUse ? 'disabled' : ''}>
+                        ${!canAfford ? 'Sem Gold' : !canUse ? `Nível ${item.level}` : `Comprar (${item.price} 💰)`}
+                    </button>`;
+                }
+                
+                html += `
+                    <div class="${itemClass}">
+                        <div class="item-level">+${item.level}</div>
+                        <div class="item-icon">${item.icon}</div>
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-stats">${item.stats}</div>
+                        <div class="item-price">${item.price} 💰</div>
+                        ${buttonHtml}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            shopContent.innerHTML = html;
+        }
+
+        function checkIfOwned(itemId) {
+            // Verificar se o item está no inventário
+            const inventoryItems = [
+                document.querySelectorAll('.stat-name')[7].textContent, // Arma
+                document.querySelectorAll('.stat-name')[8].textContent  // Armadura
+            ];
+            return inventoryItems.some(item => item.toLowerCase().includes(itemId.split('_')[1]));
+        }
+
+        function checkIfEquipped(itemId) {
+            // Verificar se o item está equipado
+            const equippedItems = [
+                document.querySelectorAll('.stat-name')[7].textContent, // Arma
+                document.querySelectorAll('.stat-name')[8].textContent  // Armadura
+            ];
+            return equippedItems.some(item => item.toLowerCase().includes(itemId.split('_')[1]));
+        }
+
+        function buyItem(itemId, price) {
+            const currentGold = parseInt(document.querySelectorAll('.stat-value')[14].textContent.replace(',', ''));
+            
+            if (currentGold >= price) {
+                // Atualizar gold
+                const newGold = currentGold - price;
+                document.querySelectorAll('.stat-value')[14].textContent = newGold.toLocaleString();
+                
+                // Adicionar item ao inventário (simplificado)
+                const itemData = getItemData(itemId);
+                if (itemData.type === 'weapon') {
+                    document.querySelectorAll('.stat-name')[7].textContent = itemData.name;
+                    document.querySelectorAll('.stat-value')[7].textContent = itemData.stats;
+                } else if (itemData.type === 'armor') {
+                    document.querySelectorAll('.stat-name')[8].textContent = itemData.name;
+                    document.querySelectorAll('.stat-value')[8].textContent = itemData.stats;
+                }
+                
+                addLogEntry(`🛒 Comprado: ${itemData.icon} ${itemData.name}!`, 'system');
+                addLogEntry(`💰 Gold: ${newGold}`, 'system');
+                
+                // Atualizar display da loja
+                updateShopDisplay();
+            }
+        }
+
+        function equipItem(itemId) {
+            const itemData = getItemData(itemId);
+            
+            if (itemData.type === 'weapon') {
+                document.querySelectorAll('.stat-name')[7].textContent = itemData.name;
+                document.querySelectorAll('.stat-value')[7].textContent = itemData.stats;
+            } else if (itemData.type === 'armor') {
+                document.querySelectorAll('.stat-name')[8].textContent = itemData.name;
+                document.querySelectorAll('.stat-value')[8].textContent = itemData.stats;
+            }
+            
+            addLogEntry(`⚔️ Equipado: ${itemData.icon} ${itemData.name}!`, 'system');
+            updateShopDisplay();
+        }
+
+        function getItemData(itemId) {
+            const allItems = {
+                'sword_wood': { name: 'Espada de Madeira', icon: '🗡️', stats: 'ATQ +2', type: 'weapon' },
+                'sword_bronze': { name: 'Espada de Bronze', icon: '⚔️', stats: 'ATQ +5', type: 'weapon' },
+                'sword_iron': { name: 'Espada de Ferro', icon: '🗡️', stats: 'ATQ +8', type: 'weapon' },
+                'sword_steel': { name: 'Espada de Aço', icon: '⚔️', stats: 'ATQ +12', type: 'weapon' },
+                'bow_short': { name: 'Arco Curto', icon: '🏹', stats: 'ATQ +4', type: 'weapon' },
+                'bow_long': { name: 'Arco Longo', icon: '🏹', stats: 'ATQ +7', type: 'weapon' },
+                'staff_basic': { name: 'Cajado Básico', icon: '🔮', stats: 'ATQ +5', type: 'weapon' },
+                'staff_arcane': { name: 'Cajado Arcano', icon: '🔮', stats: 'ATQ +10', type: 'weapon' },
+                'dagger_basic': { name: 'Adaga', icon: '🗡️', stats: 'ATQ +6', type: 'weapon' },
+                'dagger_venom': { name: 'Adaga Venenosa', icon: '🗡️', stats: 'ATQ +9', type: 'weapon' },
+                'shield_leather': { name: 'Escudo de Couro', icon: '🛡️', stats: 'DEF +1', type: 'armor' },
+                'shield_wood': { name: 'Escudo de Madeira', icon: '🛡️', stats: 'DEF +3', type: 'armor' },
+                'shield_iron': { name: 'Escudo de Ferro', icon: '🛡️', stats: 'DEF +6', type: 'armor' },
+                'shield_steel': { name: 'Escudo de Aço', icon: '🛡️', stats: 'DEF +10', type: 'armor' },
+                'armor_leather': { name: 'Armadura de Couro', icon: '🎽', stats: 'DEF +2', type: 'armor' },
+                'armor_chain': { name: 'Armadura de Malha', icon: '🎽', stats: 'DEF +5', type: 'armor' },
+                'armor_plate': { name: 'Armadura de Placas', icon: '🎽', stats: 'DEF +8', type: 'armor' },
+                'robe_basic': { name: 'Túnica Mágica', icon: '👘', stats: 'DEF +1', type: 'armor' },
+                'robe_enchanted': { name: 'Túnica Encantada', icon: '👘', stats: 'DEF +4', type: 'armor' },
+                'robe_divine': { name: 'Túnica Divina', icon: '👘', stats: 'DEF +7', type: 'armor' }
+            };
+            
+            return allItems[itemId] || { name: 'Item Desconhecido', icon: '❓', stats: '???', type: 'unknown' };
         }
 
         function showClassSelection() {
