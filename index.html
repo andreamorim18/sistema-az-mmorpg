@@ -476,6 +476,7 @@
         }
 
         function performAttack() {
+            startHPAnimation(); // Inicia animação apenas quando ataca
             const damage = Math.floor(Math.random() * 50) + 30;
             addLogEntry(`⚔️ Guerreiro ataca: ${damage} de dano!`, 'damage');
             
@@ -486,6 +487,7 @@
         }
 
         function useSkill() {
+            startHPAnimation(); // Inicia animação apenas quando usa habilidade
             const skills = [
                 '🔥 Guerreiro usa Fúria de Batalha!',
                 '🛡️ Guerreiro usa Postura Defensiva!',
@@ -521,6 +523,7 @@
         }
 
         function startNewBattle() {
+            stopHPAnimation(); // Para animação ao reiniciar
             addLogEntry('🔄 Iniciando nova batalha...', 'system');
             setTimeout(() => {
                 addLogEntry('⚔️ Novo inimigo apareceu!', 'combat');
@@ -547,16 +550,29 @@
             addLogEntry('⚔️ Arena de combate pronta!', 'system');
         });
 
-        // Animação de HP
-        setInterval(() => {
-            const hpFills = document.querySelectorAll('.hp-fill');
-            hpFills.forEach(hp => {
-                const currentWidth = parseFloat(hp.style.width);
-                const change = (Math.random() - 0.5) * 2;
-                const newWidth = Math.max(10, Math.min(100, currentWidth + change));
-                hp.style.width = newWidth + '%';
-            });
-        }, 3000);
+        // Animação de HP (somente durante combate)
+        let hpAnimationInterval = null;
+        
+        function startHPAnimation() {
+            if (hpAnimationInterval) return;
+            
+            hpAnimationInterval = setInterval(() => {
+                const hpFills = document.querySelectorAll('.hp-fill');
+                hpFills.forEach(hp => {
+                    const currentWidth = parseFloat(hp.style.width);
+                    const change = (Math.random() - 0.5) * 2;
+                    const newWidth = Math.max(10, Math.min(100, currentWidth + change));
+                    hp.style.width = newWidth + '%';
+                });
+            }, 3000);
+        }
+        
+        function stopHPAnimation() {
+            if (hpAnimationInterval) {
+                clearInterval(hpAnimationInterval);
+                hpAnimationInterval = null;
+            }
+        }
     </script>
 </body>
 </html>
