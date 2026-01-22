@@ -897,7 +897,9 @@
         }
 
         function visitShop() {
-            addLogEntry('🏪 Visitando loja...', 'system');
+            document.getElementById('shopModal').style.display = 'block';
+            updateShopDisplay();
+            addLogEntry('🏪 Loja aberta!', 'system');
         }
 
         function showShop() {
