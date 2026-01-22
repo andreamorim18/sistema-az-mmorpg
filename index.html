@@ -556,7 +556,7 @@
     <div class="container">
         <header>
             <h1>Sistema A-Z MMORPG</h1>
-            <p class="subtitle">Jogo Funcional Demo</p>
+            <p class="subtitle">Jogo Completo - Todas as Funcionalidades</p>
         </header>
 
         <div class="game-container">
@@ -835,13 +835,96 @@
         function performAttack() {
             startHPAnimation(); // Inicia animação apenas quando ataca
             const currentClass = document.querySelector('.stat-value').textContent;
+            const currentLevel = parseInt(document.querySelectorAll('.stat-value')[1].textContent);
+            const currentXP = parseInt(document.querySelectorAll('.stat-value')[15].textContent.split(' / ')[0]);
+            const maxXP = parseInt(document.querySelectorAll('.stat-value')[15].textContent.split(' / ')[1]);
+            
             const damage = Math.floor(Math.random() * 50) + 30; // 30-80 dano
             addLogEntry(`⚔️ ${currentClass} ataca: ${damage} de dano!`, 'damage');
             
             setTimeout(() => {
                 const enemyDamage = Math.floor(Math.random() * 30) + 15; // 15-45 dano
                 addLogEntry(`👹 Ogro contra-ataca: ${enemyDamage} de dano!`, 'damage');
+                
+                // Verificar se inimigo foi derrotado (simplificado)
+                const enemyHP = parseInt(document.querySelectorAll('.stat-value')[10].textContent.split('/')[1]);
+                const totalDamage = damage + (damage * 0.5); // Dano total aproximado
+                
+                if (totalDamage >= enemyHP) {
+                    // Inimigo derrotado - conceder XP e gold
+                    const xpGained = Math.floor(Math.random() * 50) + 30; // 30-80 XP
+                    const goldGained = Math.floor(Math.random() * 20) + 10; // 10-30 gold
+                    const newXP = currentXP + xpGained;
+                    const currentGold = parseInt(document.querySelectorAll('.stat-value')[14].textContent.replace(',', ''));
+                    const newGold = currentGold + goldGained;
+                    
+                    // Atualizar XP
+                    document.querySelectorAll('.stat-value')[15].textContent = `${newXP} / ${maxXP}`;
+                    
+                    // Atualizar Gold
+                    document.querySelectorAll('.stat-value')[14].textContent = newGold.toLocaleString();
+                    
+                    // Verificar se subiu de nível
+                    if (newXP >= maxXP) {
+                        levelUp();
+                    }
+                    
+                    addLogEntry(`🎉 Inimigo derrotado! +${xpGained} XP, +${goldGained} 💰`, 'system');
+                    addLogEntry(`📊 XP: ${newXP}/${maxXP}`, 'system');
+                    addLogEntry(`💰 Gold: ${newGold}`, 'system');
+                    
+                    // Resetar inimigo
+                    setTimeout(() => {
+                        addLogEntry('🔄 Novo inimigo apareceu!', 'system');
+                        addLogEntry('👹 Ogro Guardião - Nível 23', 'combat');
+                    }, 2000);
+                }
             }, 1000);
+        }
+
+        function levelUp() {
+            const currentLevel = parseInt(document.querySelectorAll('.stat-value')[1].textContent);
+            const newLevel = currentLevel + 1;
+            const currentRank = document.querySelectorAll('.stat-value')[2].textContent;
+            
+            // Atualizar nível
+            document.querySelectorAll('.stat-value')[1].textContent = newLevel;
+            
+            // Atualizar rank (simplificado)
+            let newRank = currentRank;
+            if (newLevel >= 10 && newLevel < 20) newRank = 'D';
+            else if (newLevel >= 20 && newLevel < 30) newRank = 'C';
+            else if (newLevel >= 30 && newLevel < 40) newRank = 'B';
+            else if (newLevel >= 40) newRank = 'A';
+            
+            document.querySelectorAll('.stat-value')[2].textContent = newRank;
+            
+            // Aumentar stats
+            const currentHP = parseInt(document.querySelectorAll('.stat-value')[3].textContent.split('/')[1]);
+            const currentATQ = parseInt(document.querySelectorAll('.stat-value')[4].textContent);
+            const currentDEF = parseInt(document.querySelectorAll('.stat-value')[5].textContent);
+            const currentAGI = parseInt(document.querySelectorAll('.stat-value')[6].textContent);
+            
+            const newHP = currentHP + 20;
+            const newATQ = currentATQ + 3;
+            const newDEF = currentDEF + 2;
+            const newAGI = currentAGI + 2;
+            
+            document.querySelectorAll('.stat-value')[3].textContent = `${newHP}/${newHP}`;
+            document.querySelectorAll('.stat-value')[4].textContent = newATQ;
+            document.querySelectorAll('.stat-value')[5].textContent = newDEF;
+            document.querySelectorAll('.stat-value')[6].textContent = newAGI;
+            
+            // Resetar XP para próximo nível
+            const newMaxXP = newLevel * 100;
+            document.querySelectorAll('.stat-value')[15].textContent = `0 / ${newMaxXP}`;
+            
+            // Atualizar HP bar
+            document.querySelector('.hp-fill').style.width = '100%';
+            
+            addLogEntry(`🎉 LEVEL UP! Agora nível ${newLevel}!`, 'system');
+            addLogEntry(`⭐ Rank: ${newRank}`, 'system');
+            addLogEntry(`📊 Stats aumentados!`, 'system');
         }
 
         function useSkill() {
@@ -888,15 +971,98 @@
             setTimeout(() => {
                 const damage = Math.floor(Math.random() * 80) + 50; // 50-130 dano
                 addLogEntry(`💥 Habilidade causa ${damage} de dano!`, 'damage');
+                
+                // Verificar se inimigo foi derrotado com habilidade
+                const enemyHP = parseInt(document.querySelectorAll('.stat-value')[10].textContent.split('/')[1]);
+                const currentXP = parseInt(document.querySelectorAll('.stat-value')[15].textContent.split(' / ')[0]);
+                const maxXP = parseInt(document.querySelectorAll('.stat-value')[15].textContent.split(' / ')[1]);
+                const currentGold = parseInt(document.querySelectorAll('.stat-value')[14].textContent.replace(',', ''));
+                
+                if (damage >= enemyHP) {
+                    // Inimigo derrotado com habilidade - conceder XP e gold
+                    const xpGained = Math.floor(Math.random() * 60) + 40; // 40-100 XP
+                    const goldGained = Math.floor(Math.random() * 25) + 15; // 15-40 gold
+                    const newXP = currentXP + xpGained;
+                    const newGold = currentGold + goldGained;
+                    
+                    // Atualizar XP
+                    document.querySelectorAll('.stat-value')[15].textContent = `${newXP} / ${maxXP}`;
+                    
+                    // Atualizar Gold
+                    document.querySelectorAll('.stat-value')[14].textContent = newGold.toLocaleString();
+                    
+                    // Verificar se subiu de nível
+                    if (newXP >= maxXP) {
+                        levelUp();
+                    }
+                    
+                    // Atualizar estatísticas de vitórias
+                    const currentWins = parseInt(document.querySelectorAll('.stat-value')[11].textContent);
+                    document.querySelectorAll('.stat-value')[11].textContent = currentWins + 1;
+                    
+                    addLogEntry(`🎉 Inimigo derrotado com habilidade! +${xpGained} XP, +${goldGained} 💰`, 'system');
+                    addLogEntry(`📊 XP: ${newXP}/${maxXP}`, 'system');
+                    addLogEntry(`💰 Gold: ${newGold}`, 'system');
+                    addLogEntry(`⚔️ Vitórias: ${currentWins + 1}`, 'system');
+                    
+                    // Resetar inimigo
+                    setTimeout(() => {
+                        addLogEntry('🔄 Novo inimigo apareceu!', 'system');
+                        addLogEntry('👹 Ogro Guardião - Nível 23', 'combat');
+                    }, 2000);
+                }
             }, 500);
         }
 
         function defend() {
-            addLogEntry('🛡️ Guerreiro assume postura defensiva!', 'system');
+            startHPAnimation(); // Inicia animação apenas quando ataca
+            const currentClass = document.querySelector('.stat-value').textContent;
+            addLogEntry(`🛡️ ${currentClass} assume postura defensiva!`, 'system');
+            
             setTimeout(() => {
                 const blockedDamage = Math.floor(Math.random() * 20) + 10;
                 addLogEntry(`✨ Bloqueou ${blockedDamage} de dano!`, 'heal');
-            }, 500);
+                
+                // Inimigo pode atacar mesmo na defesa
+                const enemyDamage = Math.floor(Math.random() * 25) + 10; // 10-35 dano
+                const currentHP = parseInt(document.querySelectorAll('.stat-value')[3].textContent.split('/')[0]);
+                
+                if (enemyDamage >= currentHP) {
+                    // Jogador derrotado
+                    const currentLosses = parseInt(document.querySelectorAll('.stat-value')[12].textContent);
+                    document.querySelectorAll('.stat-value')[12].textContent = currentLosses + 1;
+                    
+                    // Perder um pouco de gold
+                    const currentGold = parseInt(document.querySelectorAll('.stat-value')[14].textContent.replace(',', ''));
+                    const goldLost = Math.floor(currentGold * 0.1); // Perde 10% do gold
+                    const newGold = Math.max(0, currentGold - goldLost);
+                    document.querySelectorAll('.stat-value')[14].textContent = newGold.toLocaleString();
+                    
+                    // Resetar HP
+                    const maxHP = parseInt(document.querySelectorAll('.stat-value')[3].textContent.split('/')[1]);
+                    document.querySelectorAll('.stat-value')[3].textContent = `${maxHP}/${maxHP}`;
+                    document.querySelector('.hp-fill').style.width = '100%';
+                    
+                    addLogEntry(`💀 Você foi derrotado! -${goldLost} 💰`, 'damage');
+                    addLogEntry(`💰 Gold restante: ${newGold}`, 'system');
+                    addLogEntry(`⚔️ Derrotas: ${currentLosses + 1}`, 'system');
+                    addLogEntry('🔄 Revivendo...', 'system');
+                    
+                    setTimeout(() => {
+                        addLogEntry('✨ Você reviveu com HP cheio!', 'system');
+                        addLogEntry('🎯 Continue lutando!', 'system');
+                    }, 2000);
+                } else {
+                    // Tomou dano mas sobreviveu
+                    const newHP = Math.max(0, currentHP - enemyDamage);
+                    document.querySelectorAll('.stat-value')[3].textContent = `${newHP}/${maxHP}`;
+                    const hpPercentage = (newHP / maxHP) * 100;
+                    document.querySelector('.hp-fill').style.width = `${hpPercentage}%`;
+                    
+                    addLogEntry(`👹 Ogro ataca mesmo na defesa: ${enemyDamage} de dano!`, 'damage');
+                    addLogEntry(`❤️ HP restante: ${newHP}/${maxHP}`, 'system');
+                }
+            }, 1000);
         }
 
         function useItem() {
