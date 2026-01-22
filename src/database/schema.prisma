@@ -1,0 +1,467 @@
+// Sistema A-Z MMORPG - Database Schema
+// PostgreSQL com Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  rank      Rank     @default(A)
+  level     Int      @default(1)
+  xp        Int      @default(0)
+  pi        Int      @default(10)
+  
+  // Stats principais
+  hp        Int      @default(100)
+  ene       Int      @default(50)
+  atq       Int      @default(10)
+  def       Int      @default(5)
+  mag       Int      @default(5)
+  res       Int      @default(5)
+  agi       Int      @default(5)
+  vel       Int      @default(5)
+  fat       Int      @default(0)
+  
+  // Posição
+  mapId     String   @default("starter_zone")
+  x         Float    @default(0)
+  y         Float    @default(0)
+  z         Float    @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  skills       PlayerSkill[]
+  inventory    InventoryItem[]
+  quests       QuestStatus[]
+  combatLogs   CombatLog[]
+
+  @@map("players")
+}
+
+model Skill {
+  id            String         @id @default(cuid())
+  name          String
+  description   String
+  school        ElementalSchool
+  tier          Int
+  requiredRank  Rank
+  costENE       Int
+  costFAT       Int
+  damage        Int?
+  healing       Int?
+  duration      Int?
+  cooldown      Int
+  range         Int
+  areaOfEffect  Boolean        @default(false)
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relacionamentos
+  playerSkills  PlayerSkill[]
+  npcSkills     NPCSkill[]
+  combatLogs    CombatLog[]
+
+  @@map("skills")
+}
+
+model PlayerSkill {
+  id          String   @id @default(cuid())
+  playerId    String
+  skillId     String
+  level       Int      @default(1)
+  experience  Int      @default(0)
+  unlockedAt  DateTime @default(now())
+
+  // Relacionamentos
+  player      Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  skill       Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, skillId])
+  @@map("player_skills")
+}
+
+model Item {
+  id            String       @id @default(cuid())
+  name          String
+  description   String
+  type          ItemType
+  rarity        ItemRarity
+  requiredRank  Rank
+  value         Int
+  stackable     Boolean      @default(false)
+  maxStack      Int          @default(1)
+  
+  // Stats do item
+  hpBonus       Int?
+  eneBonus      Int?
+  atqBonus      Int?
+  defBonus      Int?
+  magBonus      Int?
+  resBonus      Int?
+  agiBonus      Int?
+  velBonus      Int?
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relacionamentos
+  inventory     InventoryItem[]
+  lootEntries   LootEntry[]
+  questRewards  QuestReward[]
+
+  @@map("items")
+}
+
+model InventoryItem {
+  id        String  @id @default(cuid())
+  playerId  String
+  itemId    String
+  quantity  Int     @default(1)
+  slot      Int?
+  equipped  Boolean @default(false)
+
+  // Relacionamentos
+  player    Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  item      Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, itemId])
+  @@map("inventory_items")
+}
+
+model Quest {
+  id            String         @id @default(cuid())
+  title         String
+  description   String
+  category      QuestCategory
+  requiredRank  Rank
+  requiredLevel Int
+  timeLimit     Int?
+  repeatable    Boolean        @default(false)
+  cooldown      Int?
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relacionamentos
+  objectives    QuestObjective[]
+  rewards       QuestReward[]
+  questStatus   QuestStatus[]
+  npcs          NPC[]
+
+  @@map("quests")
+}
+
+model QuestObjective {
+  id          String           @id @default(cuid())
+  questId     String
+  type        ObjectiveType
+  target      String
+  required    Int
+  current     Int              @default(0)
+
+  // Relacionamentos
+  quest       Quest            @relation(fields: [questId], references: [id], onDelete: Cascade)
+  progress    QuestProgress[]
+
+  @@map("quest_objectives")
+}
+
+model QuestReward {
+  id        String       @id @default(cuid())
+  questId   String
+  type      RewardType
+  value     Int
+  itemId    String?
+
+  // Relacionamentos
+  quest     Quest        @relation(fields: [questId], references: [id], onDelete: Cascade)
+  item      Item?        @relation(fields: [itemId], references: [id])
+
+  @@map("quest_rewards")
+}
+
+model QuestStatus {
+  id          String           @id @default(cuid())
+  playerId    String
+  questId     String
+  status      QuestStatusType
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  // Relacionamentos
+  player      Player           @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  quest       Quest            @relation(fields: [questId], references: [id], onDelete: Cascade)
+  progress    QuestProgress[]
+
+  @@unique([playerId, questId])
+  @@map("quest_status")
+}
+
+model QuestProgress {
+  id              String         @id @default(cuid())
+  questStatusId   String
+  objectiveId     String
+  current         Int            @default(0)
+
+  // Relacionamentos
+  questStatus     QuestStatus    @relation(fields: [questStatusId], references: [id], onDelete: Cascade)
+  objective       QuestObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@unique([questStatusId, objectiveId])
+  @@map("quest_progress")
+}
+
+model NPC {
+  id            String   @id @default(cuid())
+  name          String
+  type          NPCType
+  rank          Rank
+  level         Int
+  
+  // Stats
+  hp            Int
+  ene           Int
+  atq           Int
+  def           Int
+  mag           Int
+  res           Int
+  agi           Int
+  vel           Int
+  fat           Int
+  
+  // Posição
+  mapId         String
+  x             Float
+  y             Float
+  z             Float
+  
+  // Comportamento
+  aggression    Int      @default(0)
+  detectionRange Float   @default(10)
+  attackRange    Float   @default(5)
+  fleeThreshold Float   @default(0.2)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relacionamentos
+  quests        Quest[]
+  skills        NPCSkill[]
+  lootTable     LootTable[]
+  dialogue      Dialogue[]
+  combatLogs    CombatLog[]
+
+  @@map("npcs")
+}
+
+model NPCSkill {
+  id      String @id @default(cuid())
+  npcId   String
+  skillId String
+
+  // Relacionamentos
+  npc     NPC    @relation(fields: [npcId], references: [id], onDelete: Cascade)
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([npcId, skillId])
+  @@map("npc_skills")
+}
+
+model Dialogue {
+  id          String       @id @default(cuid())
+  npcId       String
+  text        String
+  orderIndex  Int
+  
+  // Relacionamentos
+  npc         NPC          @relation(fields: [npcId], references: [id], onDelete: Cascade)
+  options     DialogueOption[]
+
+  @@map("dialogues")
+}
+
+model DialogueOption {
+  id            String           @id @default(cuid())
+  dialogueId    String
+  text          String
+  nextDialogueId String?
+  actionType    ActionType?
+  actionValue   String?
+  conditionType ConditionType?
+  conditionValue String?
+
+  // Relacionamentos
+  dialogue      Dialogue         @relation(fields: [dialogueId], references: [id], onDelete: Cascade)
+
+  @@map("dialogue_options")
+}
+
+model Biome {
+  id                String   @id @default(cuid())
+  name              String
+  description       String
+  recommendedRank   Rank
+  recommendedLevel  Int
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relacionamentos
+  npcs              NPC[]
+  resources         ResourceNode[]
+  lootTables        LootTable[]
+
+  @@map("biomes")
+}
+
+model ResourceNode {
+  id            String         @id @default(cuid())
+  biomeId       String
+  type          ResourceType
+  x             Float
+  y             Float
+  z             Float
+  respawnTime   Int
+  lastHarvested DateTime?
+
+  // Relacionamentos
+  biome         Biome          @relation(fields: [biomeId], references: [id], onDelete: Cascade)
+  loot          ResourceLoot[]
+
+  @@map("resource_nodes")
+}
+
+model ResourceLoot {
+  id            String @id @default(cuid())
+  nodeId        String
+  itemId        String
+  chance        Float
+  minQuantity   Int
+  maxQuantity   Int
+
+  // Relacionamentos
+  node          ResourceNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@map("resource_loot")
+}
+
+model LootTable {
+  id            String   @id @default(cuid())
+  name          String
+  biomeId       String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relacionamentos
+  biome         Biome?   @relation(fields: [biomeId], references: [id])
+  entries       LootEntry[]
+  npcs          NPC[]
+
+  @@map("loot_tables")
+}
+
+model LootEntry {
+  id            String         @id @default(cuid())
+  lootTableId   String
+  itemId        String
+  chance        Float
+  minQuantity   Int
+  maxQuantity   Int
+  conditionType ConditionType?
+  conditionValue String?
+
+  // Relacionamentos
+  lootTable     LootTable      @relation(fields: [lootTableId], references: [id], onDelete: Cascade)
+  item          Item           @relation(fields: [itemId], references: [id])
+
+  @@map("loot_entries")
+}
+
+model CombatLog {
+  id            String         @id @default(cuid())
+  attackerId    String?
+  defenderId    String?
+  attackerType  CombatantType
+  defenderType  CombatantType
+  skillId       String?
+  damage        Int
+  damageType    ElementalSchool
+  critical      Boolean        @default(false)
+  blocked       Boolean        @default(false)
+  dodged        Boolean        @default(false)
+  timestamp     DateTime       @default(now())
+
+  // Relacionamentos
+  attackerPlayer Player?        @relation(fields: [attackerId], references: [id])
+  defenderPlayer Player?        @relation(fields: [defenderId], references: [id])
+  attackerNPC    NPC?           @relation("AttackerNPC", fields: [attackerId], references: [id])
+  defenderNPC    NPC?           @relation("DefenderNPC", fields: [defenderId], references: [id])
+  skill          Skill?         @relation(fields: [skillId], references: [id])
+
+  @@map("combat_logs")
+}
+
+// Enums
+enum Rank {
+  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+}
+
+enum ElementalSchool {
+  TERRANOR PYRAXIS AQUARIS AERIS LUMINIS UMBRIS
+}
+
+enum QuestCategory {
+  MAIN SIDE DAILY WEEKLY EVENT RAID
+}
+
+enum ItemType {
+  WEAPON ARMOR ACCESSORY CONSUMABLE MATERIAL QUEST
+}
+
+enum ItemRarity {
+  COMMON UNCOMMON RARE EPIC LEGENDARY MYTHIC
+}
+
+enum ObjectiveType {
+  KILL COLLECT DELIVER TALK EXPLORE USE_SKILL
+}
+
+enum RewardType {
+  XP PI GOLD ITEM SKILL
+}
+
+enum QuestStatusType {
+  AVAILABLE IN_PROGRESS COMPLETED FAILED COOLDOWN
+}
+
+enum NPCType {
+  MERCHANT QUEST_GIVER TRAINER GUARD MONSTER BOSS
+}
+
+enum ConditionType {
+  RANK LEVEL QUEST_COMPLETED ITEM_HAS
+}
+
+enum ActionType {
+  GIVE_QUEST GIVE_ITEM TAKE_ITEM TELEPORT
+}
+
+enum ResourceType {
+  MINERAL HERB WOOD CRYSTAL
+}
+
+enum CombatantType {
+  PLAYER NPC
+}
