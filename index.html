@@ -834,8 +834,9 @@
 
         function performAttack() {
             startHPAnimation(); // Inicia animação apenas quando ataca
+            const currentClass = document.querySelector('.stat-value').textContent;
             const damage = Math.floor(Math.random() * 50) + 30; // 30-80 dano
-            addLogEntry(`⚔️ Guerreiro ataca: ${damage} de dano!`, 'damage');
+            addLogEntry(`⚔️ ${currentClass} ataca: ${damage} de dano!`, 'damage');
             
             setTimeout(() => {
                 const enemyDamage = Math.floor(Math.random() * 30) + 15; // 15-45 dano
@@ -845,12 +846,42 @@
 
         function useSkill() {
             startHPAnimation(); // Inicia animação apenas quando usa habilidade
-            const skills = [
-                '🔥 Guerreiro usa Fúria de Batalha!',
-                '🛡️ Guerreiro usa Postura Defensiva!',
-                '⚡ Guerreiro usa Golpe Poderoso!',
-                '⚔️ Guerreiro usa Investida Brutal!'
-            ];
+            const currentClass = document.querySelector('.stat-value').textContent;
+            
+            const classSkills = {
+                'Guerreiro': [
+                    '🔥 Guerreiro usa Fúria de Batalha!',
+                    '🛡️ Guerreiro usa Postura Defensiva!',
+                    '⚡ Guerreiro usa Golpe Poderoso!',
+                    '⚔️ Guerreiro usa Investida Brutal!'
+                ],
+                'Arqueiro': [
+                    '🏹 Arqueiro usa Tiro Preciso!',
+                    '⚡ Arqueiro usa Disparo Rápido!',
+                    '🗡️ Arqueiro usa Flecha Envenenada!',
+                    '🌧️ Arqueiro usa Chuva de Flechas!'
+                ],
+                'Mago': [
+                    '🔥 Mago usa Bola de Fogo!',
+                    '❄️ Mago usa Gelo Arcano!',
+                    '⚡ Mago usa Raio!',
+                    '🛡️ Mago usa Barreira Mágica!'
+                ],
+                'Clérigo': [
+                    '✨ Clérigo usa Cura Menor!',
+                    '🙏 Clérigo usa Bênção!',
+                    '🛡️ Clérigo usa Proteção Divina!',
+                    '💡 Clérigo usa Luz Sagrada!'
+                ],
+                'Assassino': [
+                    '🗡️ Assassino usa Ataque Furtivo!',
+                    '☠️ Assassino usa Veneno!',
+                    '💨 Assassino usa Evasão!',
+                    '⚔️ Assassino usa Execução!'
+                ]
+            };
+            
+            const skills = classSkills[currentClass] || classSkills['Guerreiro'];
             const skill = skills[Math.floor(Math.random() * skills.length)];
             addLogEntry(skill, 'combat');
             
@@ -1212,7 +1243,7 @@
 
         function updateCharacterClass(classData) {
             // Atualizar informações do personagem
-            document.querySelector('.stat-value').textContent = classData.name;
+            document.querySelectorAll('.stat-value')[0].textContent = classData.name;
             document.querySelectorAll('.stat-value')[1].textContent = classData.level;
             document.querySelectorAll('.stat-value')[2].textContent = classData.rank;
             document.querySelectorAll('.stat-value')[3].textContent = `${classData.hp}/${classData.maxHp}`;
@@ -1224,9 +1255,9 @@
             document.querySelector('.hp-fill').style.width = '100%';
 
             // Atualizar inventário
-            document.querySelectorAll('.stat-name')[7].textContent = `${classData.weapon}`;
+            document.querySelectorAll('.stat-name')[7].textContent = classData.weapon;
             document.querySelectorAll('.stat-value')[7].textContent = classData.weaponBonus;
-            document.querySelectorAll('.stat-name')[8].textContent = `${classData.armor}`;
+            document.querySelectorAll('.stat-name')[8].textContent = classData.armor;
             document.querySelectorAll('.stat-value')[8].textContent = classData.armorBonus;
 
             // Atualizar habilidades
