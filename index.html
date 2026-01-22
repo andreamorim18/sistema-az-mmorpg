@@ -280,6 +280,125 @@
                 font-size: 2em;
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .modal-header h2 {
+            color: #FFD700;
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .class-card {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .class-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-color: #FFD700;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .class-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .class-card h3 {
+            color: #FFD700;
+            margin: 0 0 10px 0;
+            font-size: 1.4em;
+        }
+
+        .class-card p {
+            color: #fff;
+            margin: 0 0 15px 0;
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .class-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .class-stats span {
+            color: #87CEEB;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -449,11 +568,77 @@
             <button class="main-btn" onclick="openInventory()">🎒 Inventário</button>
             <button class="main-btn" onclick="showStats()">📊 Estatísticas</button>
             <button class="main-btn" onclick="visitShop()">🏪 Loja</button>
+            <button class="main-btn" onclick="showClassSelection()">🎯 Escolher Classe</button>
+            <button class="main-btn" onclick="resetGame()">🔄 Resetar Jogo</button>
         </div>
 
         <div class="version">
             <p>Sistema A-Z MMORPG v1.0.0 | Desenvolvido com ❤️ para a comunidade</p>
             <p>Baseado no universo RPG Sistema A-Z | TypeScript • Node.js • PostgreSQL</p>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Classe -->
+    <div id="classSelectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎯 Escolher Classe</h2>
+                <button class="close-btn" onclick="closeClassSelection()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="class-grid">
+                    <div class="class-card" onclick="selectClass('warrior')">
+                        <div class="class-icon">⚔️</div>
+                        <h3>Guerreiro</h3>
+                        <p>Tank/DPS físico com alta defesa</p>
+                        <div class="class-stats">
+                            <span>ATQ: ⭐⭐⭐⭐</span>
+                            <span>DEF: ⭐⭐⭐⭐⭐</span>
+                            <span>AGI: ⭐⭐</span>
+                        </div>
+                    </div>
+                    <div class="class-card" onclick="selectClass('archer')">
+                        <div class="class-icon">🏹</div>
+                        <h3>Arqueiro</h3>
+                        <p>DPS ranged com alta agilidade</p>
+                        <div class="class-stats">
+                            <span>ATQ: ⭐⭐⭐⭐⭐</span>
+                            <span>DEF: ⭐⭐</span>
+                            <span>AGI: ⭐⭐⭐⭐⭐</span>
+                        </div>
+                    </div>
+                    <div class="class-card" onclick="selectClass('mage')">
+                        <div class="class-icon">🔮</div>
+                        <h3>Mago</h3>
+                        <p>DPS mágico com controle elemental</p>
+                        <div class="class-stats">
+                            <span>ATQ: ⭐⭐⭐⭐⭐</span>
+                            <span>DEF: ⭐⭐</span>
+                            <span>AGI: ⭐⭐⭐</span>
+                        </div>
+                    </div>
+                    <div class="class-card" onclick="selectClass('cleric')">
+                        <div class="class-icon">✨</div>
+                        <h3>Clérigo</h3>
+                        <p>Support/Healer com cura e buffs</p>
+                        <div class="class-stats">
+                            <span>ATQ: ⭐⭐</span>
+                            <span>DEF: ⭐⭐⭐</span>
+                            <span>AGI: ⭐⭐⭐</span>
+                        </div>
+                    </div>
+                    <div class="class-card" onclick="selectClass('assassin')">
+                        <div class="class-icon">🗡️</div>
+                        <h3>Assassino</h3>
+                        <p>DPS burst com stealth e críticos</p>
+                        <div class="class-stats">
+                            <span>ATQ: ⭐⭐⭐⭐⭐</span>
+                            <span>DEF: ⭐⭐</span>
+                            <span>AGI: ⭐⭐⭐⭐⭐</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -541,6 +726,177 @@
 
         function visitShop() {
             addLogEntry('🏪 Visitando loja...', 'system');
+        }
+
+        function showClassSelection() {
+            document.getElementById('classSelectionModal').style.display = 'block';
+            addLogEntry('🎯 Abrindo seleção de classes...', 'system');
+        }
+
+        function closeClassSelection() {
+            document.getElementById('classSelectionModal').style.display = 'none';
+        }
+
+        function selectClass(className) {
+            const classData = {
+                warrior: {
+                    name: 'Guerreiro',
+                    icon: '⚔️',
+                    level: 1,
+                    rank: 'F',
+                    hp: 120,
+                    maxHp: 120,
+                    atq: 10,
+                    def: 8,
+                    agi: 5,
+                    weapon: 'Espada de Madeira',
+                    weaponBonus: 'ATQ +2',
+                    armor: 'Escudo de Couro',
+                    armorBonus: 'DEF +1',
+                    skills: ['Investida Básica', 'Postura Defensiva', 'Grito de Guerra', 'Golpe Poderoso']
+                },
+                archer: {
+                    name: 'Arqueiro',
+                    icon: '🏹',
+                    level: 1,
+                    rank: 'F',
+                    hp: 80,
+                    maxHp: 80,
+                    atq: 12,
+                    def: 4,
+                    agi: 15,
+                    weapon: 'Arco Curto',
+                    weaponBonus: 'ATQ +4',
+                    armor: 'Armadura de Couro',
+                    armorBonus: 'AGI +3',
+                    skills: ['Tiro Preciso', 'Disparo Rápido', 'Flecha Envenenada', 'Chuva de Flechas']
+                },
+                mage: {
+                    name: 'Mago',
+                    icon: '🔮',
+                    level: 1,
+                    rank: 'F',
+                    hp: 70,
+                    maxHp: 70,
+                    atq: 15,
+                    def: 3,
+                    agi: 8,
+                    weapon: 'Cajado Básico',
+                    weaponBonus: 'ATQ +5',
+                    armor: 'Túnica Mágica',
+                    armorBonus: 'DEF +1',
+                    skills: ['Bola de Fogo', 'Gelo Arcano', 'Raio', 'Barreira Mágica']
+                },
+                cleric: {
+                    name: 'Clérigo',
+                    icon: '✨',
+                    level: 1,
+                    rank: 'F',
+                    hp: 100,
+                    maxHp: 100,
+                    atq: 6,
+                    def: 6,
+                    agi: 6,
+                    weapon: 'Cajado Sagrado',
+                    weaponBonus: 'ATQ +2',
+                    armor: 'Armadura Benta',
+                    armorBonus: 'DEF +2',
+                    skills: ['Cura Menor', 'Bênção', 'Proteção Divina', 'Luz Sagrada']
+                },
+                assassin: {
+                    name: 'Assassino',
+                    icon: '🗡️',
+                    level: 1,
+                    rank: 'F',
+                    hp: 85,
+                    maxHp: 85,
+                    atq: 14,
+                    def: 4,
+                    agi: 18,
+                    weapon: 'Adaga',
+                    weaponBonus: 'ATQ +6',
+                    armor: 'Armadura de Couro Leve',
+                    armorBonus: 'AGI +4',
+                    skills: ['Ataque Furtivo', 'Veneno', 'Evasão', 'Execução']
+                }
+            };
+
+            const selectedClass = classData[className];
+            if (selectedClass) {
+                updateCharacterClass(selectedClass);
+                closeClassSelection();
+                addLogEntry(`🎯 Classe selecionada: ${selectedClass.icon} ${selectedClass.name}!`, 'system');
+                addLogEntry(`🌟 Personagem recriado como ${selectedClass.name} nível 1!`, 'system');
+                addLogEntry('⚔️ Equipamento inicial atribuído!', 'system');
+            }
+        }
+
+        function updateCharacterClass(classData) {
+            // Atualizar informações do personagem
+            document.querySelector('.stat-value').textContent = classData.name;
+            document.querySelectorAll('.stat-value')[1].textContent = classData.level;
+            document.querySelectorAll('.stat-value')[2].textContent = classData.rank;
+            document.querySelectorAll('.stat-value')[3].textContent = `${classData.hp}/${classData.maxHp}`;
+            document.querySelectorAll('.stat-value')[4].textContent = classData.atq;
+            document.querySelectorAll('.stat-value')[5].textContent = classData.def;
+            document.querySelectorAll('.stat-value')[6].textContent = classData.agi;
+
+            // Atualizar HP bar
+            document.querySelector('.hp-fill').style.width = '100%';
+
+            // Atualizar inventário
+            document.querySelectorAll('.stat-name')[7].textContent = `${classData.weapon}`;
+            document.querySelectorAll('.stat-value')[7].textContent = classData.weaponBonus;
+            document.querySelectorAll('.stat-name')[8].textContent = `${classData.armor}`;
+            document.querySelectorAll('.stat-value')[8].textContent = classData.armorBonus;
+
+            // Atualizar habilidades
+            classData.skills.forEach((skill, index) => {
+                if (index < 4) {
+                    document.querySelectorAll('.stat-name')[9 + index].textContent = skill;
+                }
+            });
+
+            // Resetar estatísticas
+            document.querySelectorAll('.stat-value')[11].textContent = '0'; // Vitórias
+            document.querySelectorAll('.stat-value')[12].textContent = '0'; // Derrotas
+            document.querySelectorAll('.stat-value')[13].textContent = `${classData.rank} (Iniciante)`;
+            document.querySelectorAll('.stat-value')[14].textContent = '10'; // Gold
+            document.querySelectorAll('.stat-value')[15].textContent = '0 / 100'; // XP
+
+            // Limpar log de batalha
+            const battleLog = document.getElementById('battleLog');
+            battleLog.innerHTML = '';
+            addLogEntry(`🎮 Novo personagem criado!`, 'system');
+            addLogEntry(`${classData.icon} ${classData.name} - Nível ${classData.level}`, 'combat');
+            addLogEntry('🎒 Equipamento inicial equipado!', 'system');
+        }
+
+        function resetGame() {
+            if (confirm('🔄 Tem certeza que deseja resetar o jogo? Todo o progresso será perdido!')) {
+                // Resetar para Guerreiro nível 1
+                const defaultClass = {
+                    name: 'Guerreiro',
+                    icon: '⚔️',
+                    level: 1,
+                    rank: 'F',
+                    hp: 100,
+                    maxHp: 100,
+                    atq: 8,
+                    def: 5,
+                    agi: 6,
+                    weapon: 'Espada de Madeira',
+                    weaponBonus: 'ATQ +2',
+                    armor: 'Escudo de Couro',
+                    armorBonus: 'DEF +1',
+                    skills: ['Ataque Básico', 'Defender', 'Comer', 'Usar Poção']
+                };
+
+                updateCharacterClass(defaultClass);
+                addLogEntry('🔄 Jogo resetado com sucesso!', 'system');
+                addLogEntry('🎮 Começando nova aventura!', 'system');
+                addLogEntry('⚔️ Boa sorte, herói!', 'system');
+            }
         }
 
         // Inicialização
